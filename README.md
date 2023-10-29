@@ -1,2 +1,5 @@
 # kawabaty
-test
+
+```
+node server.js
+```

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image with Fabric.js</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
+</head>
+<body>
+    <input type="file" id="imageInput" accept="image/*" onchange="loadImage(event)">
+    <input type="color" id="textColor" value="#000000">
+    <input type="color" id="lineColor" value="#FF0000">
+    <button id="addLine">Add Line</button>
+    <button id="addText">Add Text</button>
+    <button id="deleteSelected">Delete Selected</button>
+    <button id="changeColor">Change Color</button>
+    <button id="export">JSON export</button>
+    <button id="import">JSON import</button>
+    <textarea id="jsonTextArea" style="width: 100%; height: 200px;"></textarea>
+    <canvas id="canvas" width="800" height="400"></canvas>
+    <script>
+        var canvas = new fabric.Canvas('canvas');
+        var img;
+        var selectedObject = null;
+
+        // 画像の読み込み
+        function loadImage(event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                fabric.Image.fromURL(e.target.result, function (oImg) {
+                    img = oImg;
+                    canvas.add(img);
+                });
+
+                // 画像が読み込まれたら設定可能に
+                enableControls();
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // コントロールボタンを有効にする
+        function enableControls() {
+            document.getElementById('addLine').removeAttribute('disabled');
+            document.getElementById('addText').removeAttribute('disabled');
+            document.getElementById('deleteSelected').removeAttribute('disabled');
+            document.getElementById('changeColor').removeAttribute('disabled');
+        }
+
+        document.getElementById('addLine').addEventListener('click', function () {
+            var line = new fabric.Line([10, 10, 100, 100], {
+                fill: document.getElementById('lineColor').value,
+                stroke: document.getElementById('lineColor').value,
+                strokeWidth: 2
+            });
+            canvas.add(line);
+        });
+
+        document.getElementById('addText').addEventListener('click', function () {
+            var text = new fabric.Text('Hello, Fabric.js', {
+                left: 50,
+                top: 50,
+                fill: document.getElementById('textColor').value
+            });
+            canvas.add(text);
+        });
+
+        document.getElementById('deleteSelected').addEventListener('click', function () {
+            var activeObjects = canvas.getActiveObjects();
+            canvas.discardActiveObject();
+            activeObjects.forEach(function (object) {
+                canvas.remove(object);
+            });
+        });
+
+        document.getElementById('changeColor').addEventListener('click', function () {
+            if (selectedObject) {
+                var newColor = document.getElementById('textColor').value;
+                if (selectedObject.type === 'text') {
+                    // 選択したオブジェクトがテキストの場合、色を変更
+                    selectedObject.set("fill", newColor);
+                }
+                if (selectedObject.type === 'line') {
+                    // 選択したオブジェクトが直線の場合、色を変更
+                    selectedObject.set("stroke", newColor);
+                }
+                canvas.renderAll();
+            }
+        });
+
+        // JSONにエクスポート
+        document.getElementById('export').addEventListener('click', function () {
+          var json = JSON.stringify(canvas.toJSON());
+          document.getElementById('jsonTextArea').value = json;
+        });
+
+        // JSONをインポート
+        document.getElementById('import').addEventListener('click', function () {
+          var json = document.getElementById('jsonTextArea').value;
+          canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
+        });
+
+        canvas.on('object:selected', function (e) {
+            selectedObject = e.target;
+        });
+
+        canvas.on('selection:cleared', function (e) {
+            selectedObject = null;
+        });
+    </script>
+</body>
+</html>
