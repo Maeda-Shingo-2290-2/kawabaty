@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "kawabatytest"
+    "test": "kawabatytest",
+    "run": "server.js"
   },
   "author": "",
   "license": "ISC",

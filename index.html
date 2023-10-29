@@ -2,9 +2,9 @@
 <html>
 <head>
     <title>Image with Fabric.js</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
 </head>
 <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
     <input type="file" id="imageInput" accept="image/*" onchange="loadImage(event)">
     <input type="color" id="textColor" value="#000000">
     <input type="color" id="lineColor" value="#FF0000">
@@ -14,6 +14,7 @@
     <button id="changeColor">Change Color</button>
     <button id="export">JSON export</button>
     <button id="import">JSON import</button>
+    <button onclick="exportToJPEG()">Export to JPEG</button>
     <textarea id="jsonTextArea" style="width: 100%; height: 200px;"></textarea>
     <canvas id="canvas" width="800" height="400"></canvas>
     <script>
@@ -57,7 +58,7 @@
         });
 
         document.getElementById('addText').addEventListener('click', function () {
-            var text = new fabric.Text('Hello, Fabric.js', {
+            var text = new fabric.IText('Hello, Fabric.js', {
                 left: 50,
                 top: 50,
                 fill: document.getElementById('textColor').value
@@ -99,6 +100,23 @@
           var json = document.getElementById('jsonTextArea').value;
           canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
         });
+
+        function exportToJPEG() {
+            const dataURL = canvas.toDataURL({
+                format: "jpeg",
+                quality: 0.8,
+                multiplier: 2,
+            });
+            
+            // ダウンロード用のリンクを作成し、データURLを設定
+            const link = document.createElement("a");
+            link.href = dataURL;
+            link.download = "output.jpg";
+
+            // リンクをクリックしてダウンロード
+            link.click();
+        }
+
 
         canvas.on('object:selected', function (e) {
             selectedObject = e.target;
