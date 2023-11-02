@@ -14,6 +14,8 @@
     <button id="changeColor">Change Color</button>
     <button id="export">JSON export</button>
     <button id="import">JSON import</button>
+    <button id="exportSVG">SVG export</button>
+    <button id="importSVG">SVG import</button>
     <button onclick="exportToJPEG()">Export to JPEG</button>
     <textarea id="jsonTextArea" style="width: 100%; height: 200px;"></textarea>
     <canvas id="canvas" width="800" height="400"></canvas>
@@ -99,6 +101,27 @@
         document.getElementById('import').addEventListener('click', function () {
           var json = document.getElementById('jsonTextArea').value;
           canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
+        });
+
+        document.getElementById('exportSVG').addEventListener('click', function () {
+          var svg = canvas.toSVG();
+          document.getElementById('jsonTextArea').value = svg;
+        });
+
+        document.getElementById('importSVG').addEventListener('click', function() {
+          var svgString = document.getElementById('jsonTextArea').value;
+          
+          fabric.loadSVGFromString(svgString, function(objects, options) {
+            if (!objects) {
+              console.log('SVG読み込みエラー');
+              return;
+            }
+            var loadedObjects = fabric.util.groupSVGElements(objects, options);
+
+            // 読み込んだオブジェクトをキャンバスに追加
+            canvas.add.apply(canvas, loadedObjects);
+            canvas.renderAll();
+          });
         });
 
         function exportToJPEG() {
